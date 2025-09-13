@@ -4,4 +4,4 @@ Console.WriteLine("Hello, World!");
 var tester = new LogicTester();
 tester.Run();
 
-Console.WriteLine("Goodby!");
+Console.WriteLine("Goodbye!");

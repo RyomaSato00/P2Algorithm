@@ -2,6 +2,9 @@
 /// P2アルゴリズムによる分位数のオンライン推定器クラス。
 /// サンプル値を逐次追加しながら、指定した分位点の値を効率的に推定する。
 /// </summary>
+/// <remarks>
+/// 参考: https://aakinshin.net/posts/p2-quantile-estimator-rounding-issue/
+/// </remarks>
 public class P2QuantileEstimator
 {
     /// <summary>
