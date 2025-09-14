@@ -1,6 +1,6 @@
 /// <summary>
 /// P2アルゴリズムによる分位数のオンライン推定器クラス。
-/// サンプル値を逐次追加しながら、指定した分位点の値を効率的に推定する。
+/// サンプル値を逐次追加しながら、指定の分位数を効率的に推定する。
 /// </summary>
 /// <remarks>
 /// 参考: https://aakinshin.net/posts/p2-quantile-estimator-rounding-issue/
@@ -13,9 +13,9 @@ public class P2QuantileEstimator
     private const int MARKER_COUNT = 5;
 
     /// <summary>
-    /// 求める分位点。中央値であれば、0.5を指定する。
+    /// 求めたい分位数の全体に対する割合。中央値であれば、0.5を指定する。
     /// </summary>
-    private readonly double _quantile;
+    private readonly double _probability;
 
     /// <summary>
     /// 各マーカーが下から数えて何番目に位置するか。
@@ -35,17 +35,41 @@ public class P2QuantileEstimator
     /// <summary>
     /// これまでに追加されたサンプル数。
     /// </summary>
-    private int _nCount;
+    public int NCount { get; private set; } = 0;
+
+    /// <summary>
+    /// 現在の分位数推定値。
+    /// </summary>
+    public double Quantile => _markers[2];
 
     public int[] N => _realIndices;
     public double[] Q => _markers;
     public double[] Ns => _desiredIndices;
-    public int Count => _nCount;
 
-    public P2QuantileEstimator(double quantile)
+    public P2QuantileEstimator(double probability)
     {
-        _quantile = quantile;
+        _probability = probability;
         ResetAlgorithm();
+    }
+
+    /// <summary>
+    /// アルゴリズムの状態を初期化する。
+    /// </summary>
+    public void ResetAlgorithm()
+    {
+        NCount = 0;
+
+        for (int i = 0; MARKER_COUNT > i; i++)
+        {
+            _markers[i] = 0.0;
+        }
+
+        for (int i = 0; MARKER_COUNT > i; i++)
+        {
+            _realIndices[i] = i;
+        }
+
+        UpdateDesiredIndices(MARKER_COUNT);
     }
 
     /// <summary>
@@ -55,16 +79,16 @@ public class P2QuantileEstimator
     public void AddValue(double x)
     {
         // サンプル数が5つに満たない場合
-        if (MARKER_COUNT > _nCount)
+        if (MARKER_COUNT > NCount)
         {
             // マーカー登録
-            _markers[_nCount] = x;
+            _markers[NCount] = x;
 
             // サンプル数カウントアップ
-            _nCount++;
+            NCount++;
 
             // 5つの値が揃ったら、マーカーを小さい順にソートしておく。
-            if (MARKER_COUNT <= _nCount)
+            if (MARKER_COUNT <= NCount)
             {
                 BubbleSort(_markers, MARKER_COUNT);
             }
@@ -72,7 +96,7 @@ public class P2QuantileEstimator
         else
         {
             // サンプル数カウントアップ
-            _nCount++;
+            NCount++;
 
             // 最小値、最大値の更新
             if (x < _markers[0])
@@ -88,7 +112,7 @@ public class P2QuantileEstimator
             UpdateRealIndices(x);
 
             // 理想的なインデックスを更新
-            UpdateDesiredIndices(_nCount);
+            UpdateDesiredIndices(NCount);
 
             // 必要に応じてマーカーの値を更新
             UpdateMarker();
@@ -103,7 +127,7 @@ public class P2QuantileEstimator
     {
         // 最小値と最大値のインデックスは固定。
         _realIndices[0] = 0;
-        _realIndices[MARKER_COUNT - 1] = _nCount - 1;
+        _realIndices[MARKER_COUNT - 1] = NCount - 1;
 
         // 新しい値がマーカーの値より小さい場合、マーカーのインデックスを1つ増やす。
         for (int i = 1; MARKER_COUNT - 1 > i; i++)
@@ -126,9 +150,9 @@ public class P2QuantileEstimator
         double mediumIndex = maxIndex / 2;
 
         _desiredIndices[0] = 0;
-        _desiredIndices[1] = mediumIndex * _quantile;
-        _desiredIndices[2] = maxIndex * _quantile;
-        _desiredIndices[3] = mediumIndex + mediumIndex * _quantile;
+        _desiredIndices[1] = mediumIndex * _probability;
+        _desiredIndices[2] = maxIndex * _probability;
+        _desiredIndices[3] = mediumIndex + mediumIndex * _probability;
         _desiredIndices[4] = maxIndex;
     }
 
@@ -227,27 +251,5 @@ public class P2QuantileEstimator
                 }
             }
         }
-    }
-
-    /// <summary>
-    /// 現在の分位数推定値を取得する。
-    /// </summary>
-    /// <returns>分位数推定値</returns>
-    public double GetQuantile()
-    {
-        return _markers[2];
-    }
-
-    /// <summary>
-    /// アルゴリズムの状態を初期化する。
-    /// </summary>
-    public void ResetAlgorithm()
-    {
-        for (int i = 0; MARKER_COUNT > i; i++)
-        {
-            _realIndices[i] = i;
-        }
-
-        UpdateDesiredIndices(MARKER_COUNT);
     }
 }

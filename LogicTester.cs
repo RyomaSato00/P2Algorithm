@@ -37,7 +37,7 @@ public class LogicTester
             buffer.Add(item);
             buffer.Sort();
 
-            Console.WriteLine($"Value: {item:F2}, Q1: {modelQ1.GetQuantile():F2}, Q2: {modelQ2.GetQuantile():F2}, Q3: {modelQ3.GetQuantile():F2} | Q1: {buffer[(int)(buffer.Count / 4)]}, Q2: {buffer[(int)(buffer.Count / 2)]}, Q3: {buffer[(int)(buffer.Count * 3 / 4)]}  {modelQ2.Count},{modelQ2.N[0]},{modelQ2.N[1]},{modelQ2.N[2]},{modelQ2.N[3]},{modelQ2.N[4]},{modelQ2.Ns[0]:F2},{modelQ2.Ns[1]:F2},{modelQ2.Ns[2]:F2},{modelQ2.Ns[3]:F2},{modelQ2.Ns[4]:F2}");
+            Console.WriteLine($"Value: {item:F2}, Q1: {modelQ1.Quantile:F2}, Q2: {modelQ2.Quantile:F2}, Q3: {modelQ3.Quantile:F2} | Q1: {buffer[(int)(buffer.Count / 4)]}, Q2: {buffer[(int)(buffer.Count / 2)]}, Q3: {buffer[(int)(buffer.Count * 3 / 4)]}  {modelQ2.NCount},{modelQ2.N[0]},{modelQ2.N[1]},{modelQ2.N[2]},{modelQ2.N[3]},{modelQ2.N[4]},{modelQ2.Ns[0]:F2},{modelQ2.Ns[1]:F2},{modelQ2.Ns[2]:F2},{modelQ2.Ns[3]:F2},{modelQ2.Ns[4]:F2}");
         }
     }
 }
